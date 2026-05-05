@@ -54,7 +54,7 @@ export default function ChatWindow({ conversationId, onConversationCreated }: Ch
         {
           id: Date.now(),
           role: 'assistant',
-          content: 'Sorry, something went wrong. Please try again.',
+          content: 'Произошла ошибка. Попробуй ещё раз.',
           created_at: new Date().toISOString(),
         },
       ])
@@ -66,9 +66,9 @@ export default function ChatWindow({ conversationId, onConversationCreated }: Ch
       <div className="flex-1 overflow-y-auto p-4 space-y-1">
         {messages.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-lg text-white mb-2">Ask me anything about fitness!</p>
+            <p className="text-lg text-white mb-2">Спроси меня о музыке!</p>
             <p className="text-sm" style={{ color: '#8E8E93' }}>
-              I can help with exercises, nutrition, recovery, and workout adjustments.
+              Помогу найти исполнителей, альбомы, треки, расскажу о жанрах и мероприятиях.
             </p>
           </div>
         )}
@@ -93,11 +93,11 @@ export default function ChatWindow({ conversationId, onConversationCreated }: Ch
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about fitness, nutrition, recovery…"
+            placeholder="Спроси об исполнителях, альбомах, жанрах…"
             disabled={sendMessage.isPending}
             className="flex-1 px-4 py-2.5 rounded-2xl text-sm text-white placeholder-[#636366] outline-none"
             style={{ background: '#1C1C1E', border: '1px solid rgba(255,255,255,0.08)' }}
-            onFocus={(e) => (e.target.style.borderColor = 'rgba(173,255,47,0.4)')}
+            onFocus={(e) => (e.target.style.borderColor = 'rgba(168,85,247,0.4)')}
             onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
           />
           <button
@@ -106,7 +106,7 @@ export default function ChatWindow({ conversationId, onConversationCreated }: Ch
             className="flex items-center justify-center w-10 h-10 rounded-2xl transition-all shrink-0"
             style={
               input.trim() && !sendMessage.isPending
-                ? { background: '#ADFF2F', cursor: 'pointer' }
+                ? { background: '#A855F7', cursor: 'pointer' }
                 : { background: '#1C1C1E', cursor: 'not-allowed' }
             }
           >

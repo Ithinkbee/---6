@@ -22,7 +22,7 @@ COPY pyproject.toml uv.lock ./
 # --frozen    → never update the lockfile
 # --no-dev    → skip dev dependencies
 # --no-install-project → skip installing the project itself (src/ is volume-mounted)
-RUN uv sync --frozen --no-dev --no-install-project
+RUN uv sync --no-dev --no-install-project
 
 
 # ══════════════════════════════════════════════════════════════════════════════

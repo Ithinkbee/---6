@@ -8,9 +8,7 @@ from src.dispatch.config import settings
 
 # Import all models so they are registered with SQLModel.metadata
 from src.dispatch.user.models import User, UserProfile  # noqa
-from src.dispatch.exercise.models import Exercise, ExerciseMuscleGroup  # noqa
-from src.dispatch.workout.models import WorkoutPlan, WorkoutPlanDay, WorkoutPlanExercise  # noqa
-from src.dispatch.session.models import WorkoutSession, SessionSet  # noqa
+from src.dispatch.music.models import Artist, Album, Track, MusicEvent  # noqa
 from src.dispatch.chat.models import ChatConversation, ChatMessage  # noqa
 
 config = context.config
