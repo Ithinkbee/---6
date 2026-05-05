@@ -1,7 +1,7 @@
 [project]
-name = "fitness-planner-backend"
-version = "0.1.0"
-description = "AI-Powered Adaptive Fitness Planner Backend"
+name = "music-assistant-backend"
+version = "1.0.0"
+description = "Диалоговая система с поддержкой естественного языка. Предметная область: Музыка"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.0",
@@ -17,7 +17,6 @@ dependencies = [
     "langchain-core>=0.3.0",
     "pydantic-settings>=2.5.0",
     "python-multipart>=0.0.9",
-    "google-api-python-client>=2.100.0",
 ]
 
 [build-system]

@@ -1,11 +1,13 @@
+"""User models adapted for the Music domain."""
+
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
 from sqlmodel import JSON, Column, Field, Relationship, SQLModel
 
-# --- SQLModel Tables ---
 
+# ── SQLModel Tables ──────────────────────────────────────────────────────────
 
 class User(SQLModel, table=True):
     __tablename__ = "user"
@@ -25,25 +27,14 @@ class UserProfile(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id", unique=True, index=True)
-    age: int
-    gender: str
-    height_cm: float
-    weight_kg: float
-    fitness_level: str = "beginner"
-    preferred_workout_types: list[str] = Field(default=[], sa_column=Column(JSON))
-    workout_days_per_week: int = 4
-    session_duration_min: int = 60
-    bmr: float = 0.0
-    tdee: float = 0.0
-    injuries: list[str] = Field(default=[], sa_column=Column(JSON))
-    calorie_goal: int = 500
+    favorite_genres: list[str] = Field(default=[], sa_column=Column(JSON))
+    favorite_artists: list[str] = Field(default=[], sa_column=Column(JSON))
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     user: Optional[User] = Relationship(back_populates="profile")
 
 
-# --- Pydantic Schemas ---
-
+# ── Pydantic Schemas ─────────────────────────────────────────────────────────
 
 class UserRead(BaseModel):
     id: int
@@ -55,44 +46,18 @@ class UserRead(BaseModel):
 
 
 class UserProfileCreate(BaseModel):
-    age: int
-    gender: str
-    height_cm: float
-    weight_kg: float
-    fitness_level: str = "beginner"
-    preferred_workout_types: list[str] = []
-    workout_days_per_week: int = 4
-    session_duration_min: int = 60
-    injuries: list[str] = []
-    calorie_goal: int = 500
+    favorite_genres: list[str] = []
+    favorite_artists: list[str] = []
 
 
 class UserProfileUpdate(BaseModel):
-    age: int | None = None
-    gender: str | None = None
-    height_cm: float | None = None
-    weight_kg: float | None = None
-    fitness_level: str | None = None
-    preferred_workout_types: list[str] | None = None
-    workout_days_per_week: int | None = None
-    session_duration_min: int | None = None
-    injuries: list[str] | None = None
-    calorie_goal: int | None = None
+    favorite_genres: list[str] | None = None
+    favorite_artists: list[str] | None = None
 
 
 class UserProfileRead(BaseModel):
     id: int
     user_id: int
-    age: int
-    gender: str
-    height_cm: float
-    weight_kg: float
-    fitness_level: str
-    preferred_workout_types: list[str]
-    workout_days_per_week: int
-    session_duration_min: int
-    bmr: float
-    tdee: float
-    injuries: list[str]
-    calorie_goal: int
+    favorite_genres: list[str]
+    favorite_artists: list[str]
     updated_at: datetime

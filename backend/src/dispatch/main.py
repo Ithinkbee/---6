@@ -15,9 +15,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="AI Fitness Planner",
-    description="AI-Powered Adaptive Fitness Planner API",
-    version="0.1.0",
+    title="Music Assistant API",
+    description="Диалоговая система с поддержкой естественного языка. Предметная область: Музыка (Вариант 9)",
+    version="1.0.0",
     lifespan=lifespan,
 )
 

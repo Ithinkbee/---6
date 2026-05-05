@@ -5,9 +5,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: fitness
-      POSTGRES_PASSWORD: fitness_secret
-      POSTGRES_DB: fitness_planner
+      POSTGRES_USER: music
+      POSTGRES_PASSWORD: music_secret
+      POSTGRES_DB: music_assistant
     ports:
       - "5433:5432"
     volumes:
@@ -29,7 +29,7 @@ services:
       - "8000:8000"
     env_file: ./backend/.env
     environment:
-      DATABASE_URL: postgresql+psycopg2://fitness:fitness_secret@db:5432/fitness_planner
+      DATABASE_URL: postgresql+psycopg2://music:music_secret@db:5432/music_assistant
     depends_on:
       db:
         condition: service_healthy

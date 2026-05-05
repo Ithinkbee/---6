@@ -3,7 +3,10 @@ import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { useAuthStore } from '../stores/authStore'
 import { useEffect } from 'react'
-import ActivityRing from '../components/common/ActivityRing'
+import { Music } from 'lucide-react'
+
+const ACCENT = '#A855F7'
+const ACCENT_BG = 'rgba(168,85,247,0.12)'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -26,20 +29,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black p-4 gap-10">
-      {/* Concentric rings logo */}
-      <div className="relative flex items-center justify-center">
-        <ActivityRing progress={0.82} color="#FF375F" size={220} strokeWidth={22} />
-        <div className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: 'none' }}>
-          <ActivityRing progress={0.65} color="#ADFF2F" size={164} strokeWidth={22} />
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: 'none' }}>
-          <ActivityRing progress={0.91} color="#32D2FF" size={108} strokeWidth={22} />
-        </div>
+      {/* Logo */}
+      <div className="flex items-center justify-center w-24 h-24 rounded-3xl" style={{ background: ACCENT_BG }}>
+        <Music className="h-12 w-12" style={{ color: ACCENT }} />
       </div>
 
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold text-white tracking-tight">FitPlanner AI</h1>
-        <p className="text-base" style={{ color: '#8E8E93' }}>Your AI-powered adaptive fitness companion</p>
+        <h1 className="text-4xl font-bold text-white tracking-tight">Музыкальный ИИ</h1>
+        <p className="text-base" style={{ color: '#8E8E93' }}>
+          Диалоговая система в предметной области «Музыка»
+        </p>
       </div>
 
       <div className="w-full max-w-xs space-y-4">
@@ -48,6 +47,8 @@ export default function LoginPage() {
           onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-base transition-all"
           style={{ background: '#1C1C1E', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(168,85,247,0.4)')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
         >
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -55,12 +56,12 @@ export default function LoginPage() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Sign in with Google
+          Войти через Google
         </button>
       </div>
 
       <p className="text-xs text-center max-w-xs" style={{ color: '#636366' }}>
-        By signing in, you agree to our Terms of Service and Privacy Policy.
+        Лабораторная работа №6 · Вариант 9 · ЕЯзИИС
       </p>
     </div>
   )

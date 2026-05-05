@@ -1,25 +1,17 @@
 import { NavLink } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
-import {
-  LayoutDashboard,
-  ClipboardList,
-  ScrollText,
-  BarChart3,
-  Dumbbell,
-  User,
-  LogOut,
-  MessageSquare,
-} from 'lucide-react'
+import { Home, Search, Calendar, MessageSquare, User, LogOut } from 'lucide-react'
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/plan', label: 'Workout Plan', icon: ClipboardList },
-  { path: '/history', label: 'History', icon: ScrollText },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/exercises', label: 'Exercises', icon: Dumbbell },
-  { path: '/assistant', label: 'AI Assistant', icon: MessageSquare },
-  { path: '/profile', label: 'Profile', icon: User },
+  { path: '/',          label: 'Главная',   icon: Home },
+  { path: '/search',   label: 'Поиск',     icon: Search },
+  { path: '/events',   label: 'События',   icon: Calendar },
+  { path: '/assistant',label: 'Ассистент', icon: MessageSquare },
+  { path: '/profile',  label: 'Профиль',   icon: User },
 ]
+
+const ACCENT = '#A855F7'
+const ACCENT_BG = 'rgba(168,85,247,0.12)'
 
 export default function Sidebar() {
   const { user, signOut } = useAuthStore()
@@ -30,8 +22,8 @@ export default function Sidebar() {
       style={{ background: '#0A0A0A', borderRight: '1px solid rgba(255,255,255,0.06)' }}
     >
       <div className="p-6 pb-4">
-        <h1 className="text-lg font-bold tracking-tight" style={{ color: '#ADFF2F' }}>
-          FitPlanner AI
+        <h1 className="text-lg font-bold tracking-tight" style={{ color: ACCENT }}>
+          Музыкальный ИИ
         </h1>
         <p className="text-sm mt-1 truncate" style={{ color: '#8E8E93' }}>
           {user?.display_name || user?.email}
@@ -53,7 +45,7 @@ export default function Sidebar() {
                 className="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all"
                 style={
                   isActive
-                    ? { background: 'rgba(173,255,47,0.12)', color: '#ADFF2F' }
+                    ? { background: ACCENT_BG, color: ACCENT }
                     : { color: '#8E8E93' }
                 }
               >
@@ -76,7 +68,7 @@ export default function Sidebar() {
           onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
           <LogOut className="h-4 w-4" />
-          Sign Out
+          Выйти
         </button>
       </div>
     </aside>

@@ -1,35 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../config/api'
 
-interface UserProfile {
+export interface UserProfile {
   id: number
   user_id: number
-  age: number
-  gender: string
-  height_cm: number
-  weight_kg: number
-  fitness_level: string
-  preferred_workout_types: string[]
-  workout_days_per_week: number
-  session_duration_min: number
-  bmr: number
-  tdee: number
-  injuries: string[]
-  calorie_goal: number
+  favorite_genres: string[]
+  favorite_artists: string[]
   updated_at: string
 }
 
-interface ProfileInput {
-  age: number
-  gender: string
-  height_cm: number
-  weight_kg: number
-  fitness_level: string
-  preferred_workout_types: string[]
-  workout_days_per_week: number
-  session_duration_min: number
-  injuries: string[]
-  calorie_goal?: number
+export interface ProfileInput {
+  favorite_genres: string[]
+  favorite_artists: string[]
 }
 
 export function useProfile() {
@@ -51,6 +33,7 @@ export function useCreateProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] })
+      queryClient.invalidateQueries({ queryKey: ['user'] })
     },
   })
 }

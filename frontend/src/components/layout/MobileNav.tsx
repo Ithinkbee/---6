@@ -1,19 +1,16 @@
 import { NavLink } from 'react-router-dom'
-import {
-  LayoutDashboard,
-  ClipboardList,
-  ScrollText,
-  MessageSquare,
-  User,
-} from 'lucide-react'
+import { Home, Search, Calendar, MessageSquare, User } from 'lucide-react'
 
 const navItems = [
-  { path: '/', label: 'Home', icon: LayoutDashboard },
-  { path: '/plan', label: 'Plan', icon: ClipboardList },
-  { path: '/history', label: 'History', icon: ScrollText },
-  { path: '/assistant', label: 'Assistant', icon: MessageSquare },
-  { path: '/profile', label: 'Profile', icon: User },
+  { path: '/',          label: 'Главная',   icon: Home },
+  { path: '/search',   label: 'Поиск',     icon: Search },
+  { path: '/events',   label: 'События',   icon: Calendar },
+  { path: '/assistant',label: 'Ассистент', icon: MessageSquare },
+  { path: '/profile',  label: 'Профиль',   icon: User },
 ]
+
+const ACCENT = '#A855F7'
+const ACCENT_BG = 'rgba(168,85,247,0.15)'
 
 export default function MobileNav() {
   return (
@@ -36,16 +33,16 @@ export default function MobileNav() {
               <div className="flex flex-col items-center gap-0.5 px-2 py-1.5 transition-all">
                 <div
                   className="flex items-center justify-center w-9 h-9 rounded-full transition-all"
-                  style={isActive ? { background: 'rgba(173,255,47,0.15)' } : {}}
+                  style={isActive ? { background: ACCENT_BG } : {}}
                 >
                   <item.icon
                     className="h-5 w-5 transition-colors"
-                    style={{ color: isActive ? '#ADFF2F' : '#8E8E93' }}
+                    style={{ color: isActive ? ACCENT : '#8E8E93' }}
                   />
                 </div>
                 <span
                   className="text-[10px] font-medium transition-colors"
-                  style={{ color: isActive ? '#ADFF2F' : '#8E8E93' }}
+                  style={{ color: isActive ? ACCENT : '#8E8E93' }}
                 >
                   {item.label}
                 </span>

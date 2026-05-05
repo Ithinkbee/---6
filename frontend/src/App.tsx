@@ -6,12 +6,8 @@ import AppShell from './components/layout/AppShell'
 import LoginPage from './pages/LoginPage'
 import OnboardingPage from './pages/OnboardingPage'
 import DashboardPage from './pages/DashboardPage'
-import WorkoutPlanPage from './pages/WorkoutPlanPage'
-import ActiveWorkoutPage from './pages/ActiveWorkoutPage'
-import HistoryPage from './pages/HistoryPage'
-import SessionDetailPage from './pages/SessionDetailPage'
-import AnalyticsPage from './pages/AnalyticsPage'
-import ExerciseLibraryPage from './pages/ExerciseLibraryPage'
+import SearchPage from './pages/SearchPage'
+import EventsPage from './pages/EventsPage'
 import ProfilePage from './pages/ProfilePage'
 import AssistantPage from './pages/AssistantPage'
 
@@ -38,14 +34,10 @@ export default function App() {
           }
         >
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/plan" element={<WorkoutPlanPage />} />
-          <Route path="/workout/:planId/:dayOfWeek" element={<ActiveWorkoutPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/history/:sessionId" element={<SessionDetailPage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/exercises" element={<ExerciseLibraryPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/events" element={<EventsPage />} />
           <Route path="/assistant" element={<AssistantPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

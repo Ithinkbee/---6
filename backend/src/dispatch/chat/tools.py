@@ -1,160 +1,103 @@
-"""LangGraph agent tools for AI fitness assistant."""
+"""LangGraph agent tools for the Music AI assistant."""
 
 import json
 
 from langchain_core.tools import tool
-from sqlmodel import Session, select
+from sqlmodel import Session
 
-from src.dispatch.exercise.models import Exercise, ExerciseMuscleGroup
-from src.dispatch.session.models import SessionSet, WorkoutSession
-from src.dispatch.user.models import UserProfile
-from src.dispatch.workout.models import WorkoutPlan, WorkoutPlanDay, WorkoutPlanExercise
+from src.dispatch.music import service as music_service
 
 
 def create_assistant_tools(db_session: Session, user_id: int):
-    """Create tool implementations with injected db_session for the AI assistant."""
+    """Create tool implementations with injected db_session for the music assistant."""
 
     @tool
-    def get_user_profile() -> str:
-        """Get the user's biometrics, fitness level, preferences, and goals."""
-        stmt = select(UserProfile).where(UserProfile.user_id == user_id)
-        profile = db_session.exec(stmt).first()
-        if not profile:
-            return json.dumps({"error": "No profile found"})
-        return json.dumps({
-            "age": profile.age,
-            "gender": profile.gender,
-            "height_cm": profile.height_cm,
-            "weight_kg": profile.weight_kg,
-            "fitness_level": profile.fitness_level,
-            "preferred_workout_types": profile.preferred_workout_types,
-            "workout_days_per_week": profile.workout_days_per_week,
-            "session_duration_min": profile.session_duration_min,
-            "injuries": profile.injuries,
-            "bmr": profile.bmr,
-            "tdee": profile.tdee,
-        })
-
-    @tool
-    def get_current_workout_plan() -> str:
-        """Get the user's current week workout plan with all exercises."""
-        plan = db_session.exec(
-            select(WorkoutPlan).where(WorkoutPlan.user_id == user_id)
-        ).first()
-        if not plan:
-            return json.dumps({"error": "No active plan found"})
-
-        days_stmt = select(WorkoutPlanDay).where(WorkoutPlanDay.plan_id == plan.id).order_by(WorkoutPlanDay.day_of_week)
-        days = db_session.exec(days_stmt).all()
-
-        plan_data = {"name": plan.name, "days": []}
-        for day in days:
-            ex_stmt = (
-                select(WorkoutPlanExercise)
-                .where(WorkoutPlanExercise.plan_id == day.plan_id)
-                .where(WorkoutPlanExercise.day_of_week == day.day_of_week)
-                .order_by(WorkoutPlanExercise.order_index)
-            )
-            exercises = db_session.exec(ex_stmt).all()
-            day_data = {
-                "day_of_week": day.day_of_week,
-                "focus": day.focus,
-                "exercises": [],
-            }
-            for ex in exercises:
-                exercise = db_session.get(Exercise, ex.exercise_id)
-                day_data["exercises"].append({
-                    "name": exercise.name if exercise else "Unknown",
-                    "sets": ex.sets,
-                    "reps": f"{ex.reps_min}-{ex.reps_max}",
-                    "rest_seconds": ex.rest_seconds,
-                })
-            plan_data["days"].append(day_data)
-
-        return json.dumps(plan_data)
-
-    @tool
-    def get_recent_sessions(count: int = 5) -> str:
-        """Get the user's most recent workout sessions with details.
+    def search_artists(name: str = "", genre: str = "") -> str:
+        """Search music artists by name or genre.
 
         Args:
-            count: Number of recent sessions to return
+            name: Partial or full artist/band name to search for
+            genre: Genre filter (rock, pop, jazz, classical, hip_hop, electronic, folk, rnb, metal, indie)
         """
-        stmt = (
-            select(WorkoutSession)
-            .where(WorkoutSession.user_id == user_id)
-            .where(WorkoutSession.status == "completed")
-            .order_by(WorkoutSession.started_at.desc())
-            .limit(count)
-        )
-        sessions = db_session.exec(stmt).all()
-
-        sessions_data = []
-        for s in sessions:
-            sets_stmt = select(SessionSet).where(SessionSet.session_id == s.id)
-            sets = db_session.exec(sets_stmt).all()
-            exercises_done = {}
-            for st in sets:
-                exercise = db_session.get(Exercise, st.exercise_id)
-                name = exercise.name if exercise else "Unknown"
-                if name not in exercises_done:
-                    exercises_done[name] = {"sets": 0, "max_weight": 0, "total_reps": 0}
-                exercises_done[name]["sets"] += 1
-                exercises_done[name]["max_weight"] = max(exercises_done[name]["max_weight"], st.weight_kg or 0)
-                exercises_done[name]["total_reps"] += st.reps
-
-            sessions_data.append({
-                "date": s.started_at.isoformat(),
-                "duration_minutes": (s.duration_seconds or 0) // 60,
-                "calories": s.estimated_calories,
-                "exercises": exercises_done,
-            })
-
-        return json.dumps(sessions_data)
-
-    @tool
-    def search_exercises(query: str, muscle_group: str = "") -> str:
-        """Search exercises by name or filter by muscle group.
-
-        Args:
-            query: Search term for exercise name
-            muscle_group: Optional muscle group filter
-        """
-        stmt = select(Exercise).where(Exercise.name.ilike(f"%{query}%"))
-        if muscle_group:
-            stmt = stmt.join(ExerciseMuscleGroup).where(ExerciseMuscleGroup.muscle_group == muscle_group)
-        exercises = db_session.exec(stmt.limit(10)).all()
+        artists = music_service.search_artists(db_session, name=name, genre=genre)
+        if not artists:
+            return json.dumps({"result": "Исполнители не найдены. Попробуйте другой запрос."})
         return json.dumps([
-            {"id": e.id, "name": e.name, "category": e.category, "equipment": e.equipment, "instructions": e.instructions[:200]}
-            for e in exercises
-        ])
+            {"id": a.id, "name": a.name, "genre": a.genre, "country": a.country, "bio": a.bio}
+            for a in artists
+        ], ensure_ascii=False)
 
     @tool
-    def get_nutrition_info() -> str:
-        """Get basic nutrition recommendations based on user profile and goals."""
-        stmt = select(UserProfile).where(UserProfile.user_id == user_id)
-        profile = db_session.exec(stmt).first()
-        if not profile:
-            return json.dumps({"error": "No profile found"})
+    def get_artist_info(artist_name: str) -> str:
+        """Get detailed information about an artist including their albums and tracks.
 
-        # Basic macros based on TDEE
-        protein_g = round(profile.weight_kg * 1.8, 0)  # 1.8g/kg for active people
-        fat_g = round(profile.tdee * 0.25 / 9, 0)  # 25% from fat
-        carb_g = round((profile.tdee - protein_g * 4 - fat_g * 9) / 4, 0)
+        Args:
+            artist_name: Name of the artist or band
+        """
+        data = music_service.get_artist_with_albums(db_session, artist_name)
+        if not data:
+            return json.dumps({"result": f"Исполнитель '{artist_name}' не найден в базе данных."}, ensure_ascii=False)
+        return json.dumps(data, ensure_ascii=False)
 
-        return json.dumps({
-            "daily_calories": round(profile.tdee),
-            "protein_g": protein_g,
-            "fat_g": fat_g,
-            "carbs_g": carb_g,
-            "protein_per_kg": 1.8,
-            "notes": "These are estimates. Adjust based on goals: surplus for muscle gain, deficit for fat loss.",
-        })
+    @tool
+    def search_tracks(title: str = "", artist: str = "") -> str:
+        """Search tracks by title or artist name.
 
-    return [
-        get_user_profile,
-        get_current_workout_plan,
-        get_recent_sessions,
-        search_exercises,
-        get_nutrition_info,
-    ]
+        Args:
+            title: Partial or full track title
+            artist: Partial or full artist name
+        """
+        tracks = music_service.search_tracks(db_session, title=title, artist_name=artist)
+        if not tracks:
+            return json.dumps({"result": "Треки не найдены. Попробуйте другой запрос."}, ensure_ascii=False)
+        return json.dumps(tracks, ensure_ascii=False)
+
+    @tool
+    def recommend_music(genre: str = "", mood: str = "") -> str:
+        """Recommend artists based on genre and/or mood.
+
+        Args:
+            genre: Music genre (rock, pop, jazz, classical, hip_hop, electronic, folk, rnb, metal, indie)
+            mood: User's mood or desired atmosphere (happy, sad, energetic, calm, romantic, aggressive)
+        """
+        artists = music_service.recommend_artists(db_session, genre=genre, mood=mood)
+        if not artists:
+            return json.dumps({"result": "Не удалось подобрать рекомендации. Попробуйте указать другой жанр или настроение."}, ensure_ascii=False)
+        return json.dumps([
+            {"name": a.name, "genre": a.genre, "country": a.country, "bio": a.bio}
+            for a in artists
+        ], ensure_ascii=False)
+
+    @tool
+    def get_events(city: str = "", genre: str = "") -> str:
+        """Get upcoming music events, optionally filtered by city or genre.
+
+        Args:
+            city: City name to filter events
+            genre: Genre filter for events
+        """
+        events = music_service.get_events(db_session, city=city, genre=genre)
+        if not events:
+            return json.dumps({"result": "Мероприятия не найдены по указанным параметрам."}, ensure_ascii=False)
+        return json.dumps([
+            {
+                "title": e.title,
+                "city": e.city,
+                "date": e.date.isoformat(),
+                "genre": e.genre,
+                "venue": e.venue,
+            }
+            for e in events
+        ], ensure_ascii=False)
+
+    @tool
+    def get_genre_info(genre_name: str) -> str:
+        """Get information about a music genre: description, history, key artists.
+
+        Args:
+            genre_name: Name of the genre (e.g. jazz, rock, classical, hip_hop)
+        """
+        info = music_service.get_genre_info(genre_name)
+        return json.dumps(info, ensure_ascii=False)
+
+    return [search_artists, get_artist_info, search_tracks, recommend_music, get_events, get_genre_info]
