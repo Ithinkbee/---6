@@ -14,6 +14,7 @@ def send_message_flow(
     user_id: int,
     conversation_id: int | None,
     message: str,
+    sarcastic_mode: bool = True,
 ) -> ChatResponse:
     """Full chat flow: manage conversation, build history, run agent, save response."""
 
@@ -50,6 +51,7 @@ def send_message_flow(
         db_session=db_session,
         user_id=user_id,
         messages=langchain_messages,
+        sarcastic_mode=sarcastic_mode,
     )
 
     # Save assistant response

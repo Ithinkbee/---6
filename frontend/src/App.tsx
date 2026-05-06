@@ -10,6 +10,8 @@ import SearchPage from './pages/SearchPage'
 import EventsPage from './pages/EventsPage'
 import ProfilePage from './pages/ProfilePage'
 import AssistantPage from './pages/AssistantPage'
+import QuizPage from './pages/QuizPage'
+import ShopPage from './pages/ShopPage'
 
 export default function App() {
   useAuth()
@@ -38,6 +40,8 @@ export default function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/assistant" element={<AssistantPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/quiz" element={<QuizPage />} />
+          <Route path="/shop" element={<ShopPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

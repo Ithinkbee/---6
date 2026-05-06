@@ -26,6 +26,7 @@ def send_message(
         user_id=current_user.id,
         conversation_id=body.conversation_id,
         message=body.message,
+        sarcastic_mode=body.sarcastic_mode,
     )
 
 

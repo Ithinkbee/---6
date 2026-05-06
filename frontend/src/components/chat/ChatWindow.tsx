@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Loader2, Send } from 'lucide-react'
 import ChatBubble from './ChatBubble'
 import { useSendMessage, useConversation, type ChatMessage } from '../../hooks/useChat'
+import { useNotesStore } from '../../stores/notesStore'
 
 interface ChatWindowProps {
   conversationId: number | null
@@ -13,6 +14,7 @@ export default function ChatWindow({ conversationId, onConversationCreated }: Ch
   const [localMessages, setLocalMessages] = useState<ChatMessage[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sendMessage = useSendMessage()
+  const sarcasticDisabled = useNotesStore((s) => s.unlocked.disableSarcasticBot)
 
   const { data: conversation } = useConversation(conversationId)
 
@@ -43,6 +45,7 @@ export default function ChatWindow({ conversationId, onConversationCreated }: Ch
       const result = await sendMessage.mutateAsync({
         conversation_id: conversationId,
         message: input,
+        sarcastic_mode: !sarcasticDisabled,
       })
       if (!conversationId && onConversationCreated) {
         onConversationCreated(result.conversation_id)

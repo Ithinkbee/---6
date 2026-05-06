@@ -49,11 +49,13 @@ export function useSendMessage() {
     mutationFn: async ({
       conversation_id,
       message,
+      sarcastic_mode = true,
     }: {
       conversation_id: number | null
       message: string
+      sarcastic_mode?: boolean
     }) => {
-      const { data } = await api.post('/chat/send', { conversation_id, message })
+      const { data } = await api.post('/chat/send', { conversation_id, message, sarcastic_mode })
       return data as { conversation_id: number; message: ChatMessage }
     },
     onSuccess: (data) => {
