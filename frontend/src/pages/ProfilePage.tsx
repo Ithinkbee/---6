@@ -63,7 +63,7 @@ function ConveyorGenres({
           display: 'flex',
           gap: '8px',
           width: 'max-content',
-          animation: 'conveyor-slide 14s linear infinite',
+          animation: 'conveyor-slide 7s linear infinite',
           animationPlayState: paused ? 'paused' : 'running',
         }}
       >
