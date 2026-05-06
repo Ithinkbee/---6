@@ -200,6 +200,70 @@ const BASE_QUESTIONS: Omit<Question, 'id'>[] = [
     options: ['Hey Jude', 'Yesterday', 'Let It Be', 'Come Together'],
     correctIndex: 2,
   },
+  // 17. Stromae — Alors on danse
+  {
+    notes: [
+      { freq: N.D5, dur: 0.3 }, { freq: N.C5, dur: 0.3 }, { freq: N.Bb4, dur: 0.3 }, { freq: N.A4, dur: 0.3 },
+      { freq: N.Bb4, dur: 0.3 }, { freq: N.C5, dur: 0.3 }, { freq: N.D5, dur: 0.5 },
+      { freq: N.C5, dur: 0.3 }, { freq: N.Bb4, dur: 0.3 }, { freq: N.A4, dur: 0.4 },
+      { freq: N.G4, dur: 0.3 }, { freq: N.A4, dur: 0.7 },
+    ],
+    options: ['Alors on danse', 'Formidable', 'Papaoutai', 'Ta Fête'],
+    correctIndex: 0,
+  },
+  // 18. Градусы — Научиться бы не париться
+  {
+    notes: [
+      { freq: N.G4, dur: 0.3 }, { freq: N.Bb4, dur: 0.3 }, { freq: N.A4, dur: 0.3 }, { freq: N.G4, dur: 0.3 },
+      { freq: N.F4, dur: 0.3 }, { freq: N.G4, dur: 0.5 },
+      { freq: N.Bb4, dur: 0.3 }, { freq: N.A4, dur: 0.3 }, { freq: N.G4, dur: 0.3 },
+      { freq: N.F4, dur: 0.3 }, { freq: N.G4, dur: 0.8 },
+    ],
+    options: ['Научиться бы не париться', 'Вечеринка', 'Красавчик', 'Лирика'],
+    correctIndex: 0,
+  },
+  // 19. Катя Лель — Мой мармеладный
+  {
+    notes: [
+      { freq: N.Bb4, dur: 0.3 }, { freq: N.C5, dur: 0.3 }, { freq: N.D5, dur: 0.3 }, { freq: N.F5, dur: 0.4 },
+      { freq: N.D5, dur: 0.3 }, { freq: N.C5, dur: 0.3 }, { freq: N.Bb4, dur: 0.55 },
+      { freq: N.C5, dur: 0.3 }, { freq: N.D5, dur: 0.3 }, { freq: N.Ds5, dur: 0.4 },
+      { freq: N.D5, dur: 0.3 }, { freq: N.C5, dur: 0.3 }, { freq: N.Bb4, dur: 0.7 },
+    ],
+    options: ['Зайка моя', 'Мой мармеладный', 'Малиновая смородина', 'Жених'],
+    correctIndex: 1,
+  },
+  // 20. Plants vs. Zombies — Main Theme (Crazy Dave)
+  {
+    notes: [
+      { freq: N.G4, dur: 0.3 }, { freq: N.A4, dur: 0.3 }, { freq: N.B4, dur: 0.3 }, { freq: N.D5, dur: 0.5 },
+      { freq: N.B4, dur: 0.3 }, { freq: N.A4, dur: 0.3 }, { freq: N.G4, dur: 0.6 },
+      { freq: N.E5, dur: 0.3 }, { freq: N.D5, dur: 0.3 }, { freq: N.B4, dur: 0.3 }, { freq: N.D5, dur: 0.5 },
+      { freq: N.B4, dur: 0.3 }, { freq: N.A4, dur: 0.3 }, { freq: N.G4, dur: 0.9 },
+    ],
+    options: ['Minecraft Menu', 'Undertale', 'Plants vs. Zombies', 'Angry Birds'],
+    correctIndex: 2,
+  },
+  // 21. Red Hot Chili Peppers — Can't Stop
+  {
+    notes: [
+      { freq: N.E5, dur: 0.13 }, { freq: N.E5, dur: 0.13 }, { freq: N.E5, dur: 0.27 },
+      { freq: N.G5, dur: 0.27 }, { freq: N.E5, dur: 0.27 }, { freq: N.D5, dur: 0.27 }, { freq: N.E5, dur: 0.5 },
+      { freq: N.B4, dur: 0.27 }, { freq: N.D5, dur: 0.27 }, { freq: N.E5, dur: 0.27 }, { freq: N.G5, dur: 0.55 },
+    ],
+    options: ['Under the Bridge', "Can't Stop", 'Californication', 'Scar Tissue'],
+    correctIndex: 1,
+  },
+  // 22. Lady Gaga — Poker Face
+  {
+    notes: [
+      { freq: N.Gs4, dur: 0.2 }, { freq: N.Gs4, dur: 0.2 }, { freq: N.Gs4, dur: 0.2 }, { freq: N.Bb4, dur: 0.3 },
+      { freq: N.Gs4, dur: 0.3 }, { freq: N.E4, dur: 0.5 },
+      { freq: N.Fs4, dur: 0.3 }, { freq: N.Gs4, dur: 0.3 }, { freq: N.Bb4, dur: 0.3 }, { freq: N.Gs4, dur: 0.7 },
+    ],
+    options: ['Bad Romance', 'Just Dance', 'Telephone', 'Poker Face'],
+    correctIndex: 3,
+  },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
