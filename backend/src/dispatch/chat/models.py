@@ -38,6 +38,7 @@ class ChatMessage(SQLModel, table=True):
 class ChatRequest(BaseModel):
     conversation_id: int | None = None
     message: str
+    sarcastic_mode: bool = True
 
 
 class ChatMessageRead(BaseModel):

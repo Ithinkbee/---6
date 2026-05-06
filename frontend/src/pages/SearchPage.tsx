@@ -1,6 +1,8 @@
-import { useState } from 'react'
-import { Search, Music, Disc, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState, useRef, useCallback } from 'react'
+import { Search, Music, Disc, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useSearchArtists, useArtistDetail, type Artist } from '../hooks/useMusic'
+import { useNotesStore } from '../stores/notesStore'
 
 const ACCENT = '#A855F7'
 const ACCENT_BG = 'rgba(168,85,247,0.12)'
@@ -18,6 +20,51 @@ const GENRES = [
   { value: 'metal', label: 'Метал' },
   { value: 'indie', label: 'Инди' },
 ]
+
+// ── Sound generators ─────────────────────────────────────────────────────────
+
+function playSeagull(ctx: AudioContext) {
+  for (let i = 0; i < 3; i++) {
+    const t = ctx.currentTime + i * 0.55
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(900, t)
+    osc.frequency.linearRampToValueAtTime(1600, t + 0.2)
+    osc.frequency.linearRampToValueAtTime(900, t + 0.42)
+    gain.gain.setValueAtTime(0, t)
+    gain.gain.linearRampToValueAtTime(0.25, t + 0.04)
+    gain.gain.setValueAtTime(0.25, t + 0.38)
+    gain.gain.linearRampToValueAtTime(0, t + 0.42)
+    osc.start(t)
+    osc.stop(t + 0.42)
+  }
+}
+
+function playDrill(ctx: AudioContext) {
+  const osc = ctx.createOscillator()
+  const lfo = ctx.createOscillator()
+  const lfoGain = ctx.createGain()
+  const master = ctx.createGain()
+  osc.connect(master)
+  lfo.connect(lfoGain)
+  lfoGain.connect(master.gain)
+  master.connect(ctx.destination)
+  osc.type = 'sawtooth'
+  osc.frequency.value = 80
+  lfo.type = 'square'
+  lfo.frequency.value = 55
+  lfoGain.gain.value = 0.3
+  master.gain.value = 0.3
+  osc.start(ctx.currentTime)
+  lfo.start(ctx.currentTime)
+  osc.stop(ctx.currentTime + 1.6)
+  lfo.stop(ctx.currentTime + 1.6)
+}
+
+// ── Artist card (same as before) ─────────────────────────────────────────────
 
 function ArtistCard({ artist }: { artist: Artist }) {
   const [expanded, setExpanded] = useState(false)
@@ -39,11 +86,9 @@ function ArtistCard({ artist }: { artist: Artist }) {
             {artist.genre} · {artist.country}
           </p>
         </div>
-        {expanded ? (
-          <ChevronUp className="h-4 w-4 shrink-0" style={{ color: '#8E8E93' }} />
-        ) : (
-          <ChevronDown className="h-4 w-4 shrink-0" style={{ color: '#8E8E93' }} />
-        )}
+        {expanded
+          ? <ChevronUp className="h-4 w-4 shrink-0" style={{ color: '#8E8E93' }} />
+          : <ChevronDown className="h-4 w-4 shrink-0" style={{ color: '#8E8E93' }} />}
       </button>
 
       {expanded && (
@@ -83,10 +128,179 @@ function ArtistCard({ artist }: { artist: Artist }) {
   )
 }
 
+// ── Minesweeper tile types ────────────────────────────────────────────────────
+
+type TileContent =
+  | { type: 'artist'; artist: Artist }
+  | { type: 'bomb'; sound: 'seagull' | 'drill' }
+
+interface Tile {
+  id: string
+  content: TileContent
+  revealed: boolean
+  shaking: boolean
+}
+
+function buildTiles(artists: Artist[]): Tile[] {
+  const bombCount = Math.max(3, Math.ceil(artists.length * 0.7))
+  const artistTiles: Tile[] = artists.map((a, i) => ({
+    id: `a-${i}`,
+    content: { type: 'artist', artist: a },
+    revealed: false,
+    shaking: false,
+  }))
+  const bombTiles: Tile[] = Array.from({ length: bombCount }, (_, i) => ({
+    id: `b-${i}`,
+    content: { type: 'bomb', sound: (Math.random() < 0.5 ? 'seagull' : 'drill') as 'seagull' | 'drill' },
+    revealed: false,
+    shaking: false,
+  }))
+  return [...artistTiles, ...bombTiles].sort(() => Math.random() - 0.5)
+}
+
+function MinesweeperGrid({ artists }: { artists: Artist[] }) {
+  const [tiles, setTiles] = useState<Tile[]>(() => buildTiles(artists))
+  const ctxRef = useRef<AudioContext | null>(null)
+
+  const revealTile = useCallback((id: string) => {
+    setTiles((prev) =>
+      prev.map((t) => {
+        if (t.id !== id || t.revealed) return t
+
+        if (t.content.type === 'bomb') {
+          if (!ctxRef.current || ctxRef.current.state === 'closed') {
+            ctxRef.current = new AudioContext()
+          }
+          if (t.content.sound === 'seagull') playSeagull(ctxRef.current)
+          else playDrill(ctxRef.current)
+
+          // shake then stop shaking
+          setTimeout(() => {
+            setTiles((p) => p.map((x) => x.id === id ? { ...x, shaking: false } : x))
+          }, 600)
+          return { ...t, revealed: true, shaking: true }
+        }
+
+        return { ...t, revealed: true }
+      })
+    )
+  }, [])
+
+  const unrevealed = tiles.filter((t) => !t.revealed).length
+  const found = tiles.filter((t) => t.revealed && t.content.type === 'artist').length
+
+  return (
+    <div className="space-y-3">
+      {/* Banner */}
+      <div
+        className="flex items-center justify-between p-3 rounded-2xl text-sm"
+        style={{ background: '#1C1C1E', border: '1px solid rgba(255,165,0,0.2)' }}
+      >
+        <div>
+          <span className="font-bold text-white">Режим «Угадай, чё выкину» 💣</span>
+          <span className="ml-2 text-xs" style={{ color: '#8E8E93' }}>
+            Под плитками скрыты результаты… или кое-что похуже
+          </span>
+        </div>
+        <Link
+          to="/shop"
+          className="flex items-center gap-1 px-2 py-1 rounded-xl text-xs shrink-0"
+          style={{ background: ACCENT_BG, color: ACCENT }}
+        >
+          <ShoppingBag className="h-3 w-3" />
+          Отключить
+        </Link>
+      </div>
+
+      <p className="text-xs" style={{ color: '#8E8E93' }}>
+        Нажмите на плитку, чтобы открыть · Найдено: {found} · Осталось: {unrevealed}
+      </p>
+
+      <div className="grid grid-cols-3 gap-2">
+        {tiles.map((tile) => {
+          if (!tile.revealed) {
+            return (
+              <button
+                key={tile.id}
+                type="button"
+                onClick={() => revealTile(tile.id)}
+                className="aspect-square rounded-2xl flex items-center justify-center text-2xl font-bold transition-all"
+                style={{
+                  background: 'rgba(168,85,247,0.1)',
+                  border: '1px solid rgba(168,85,247,0.25)',
+                  color: ACCENT,
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(168,85,247,0.2)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(168,85,247,0.1)')}
+              >
+                ♩
+              </button>
+            )
+          }
+
+          if (tile.content.type === 'bomb') {
+            return (
+              <div
+                key={tile.id}
+                className="aspect-square rounded-2xl flex flex-col items-center justify-center gap-1"
+                style={{
+                  background: 'rgba(255,55,95,0.1)',
+                  border: '1px solid rgba(255,55,95,0.3)',
+                  animation: tile.shaking ? 'tile-shake 0.6s ease' : 'none',
+                }}
+              >
+                <span className="text-2xl">{tile.content.sound === 'seagull' ? '🐦' : '🔩'}</span>
+                <span className="text-xs font-bold" style={{ color: '#FF375F' }}>
+                  {tile.content.sound === 'seagull' ? 'Чайки!' : 'Дрель!'}
+                </span>
+              </div>
+            )
+          }
+
+          // Artist tile — revealed
+          return (
+            <div
+              key={tile.id}
+              className="aspect-square rounded-2xl p-2 flex flex-col items-center justify-center gap-1 text-center overflow-hidden"
+              style={{ background: '#1C1C1E', border: '1px solid rgba(52,199,89,0.2)' }}
+            >
+              <Music className="h-5 w-5 shrink-0" style={{ color: ACCENT }} />
+              <p className="text-xs font-semibold text-white leading-tight line-clamp-2">
+                {tile.content.artist.name}
+              </p>
+              <p className="text-[10px] capitalize" style={{ color: '#8E8E93' }}>
+                {tile.content.artist.genre}
+              </p>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Show full list below after some revealed */}
+      {found > 0 && (
+        <div className="space-y-2 pt-2">
+          <p className="text-xs font-semibold" style={{ color: '#8E8E93' }}>Открытые исполнители:</p>
+          {tiles
+            .filter((t) => t.revealed && t.content.type === 'artist')
+            .map((t) => (
+              <ArtistCard key={t.id} artist={(t.content as { type: 'artist'; artist: Artist }).artist} />
+            ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+
 export default function SearchPage() {
   const [query, setQuery] = useState('')
   const [genre, setGenre] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [searchKey, setSearchKey] = useState(0)
+
+  const minesweeperDisabled = useNotesStore((s) => s.unlocked.disableMinesweeperSearch)
 
   const { data: artists, isLoading } = useSearchArtists(
     submitted ? query : '',
@@ -95,6 +309,7 @@ export default function SearchPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    setSearchKey((k) => k + 1)
     setSubmitted(true)
   }
 
@@ -144,11 +359,13 @@ export default function SearchPage() {
             <p className="text-sm" style={{ color: '#8E8E93' }}>Поиск…</p>
           ) : !artists || artists.length === 0 ? (
             <p className="text-sm" style={{ color: '#8E8E93' }}>Ничего не найдено. Попробуйте другой запрос.</p>
-          ) : (
+          ) : minesweeperDisabled ? (
             <>
               <p className="text-xs" style={{ color: '#8E8E93' }}>Найдено: {artists.length}</p>
               {artists.map((a) => <ArtistCard key={a.id} artist={a} />)}
             </>
+          ) : (
+            <MinesweeperGrid key={searchKey} artists={artists} />
           )}
         </div>
       )}
