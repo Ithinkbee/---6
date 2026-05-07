@@ -132,20 +132,21 @@ function Avatar({
   displayName, unlocked,
 }: { displayName: string | null; unlocked: boolean }) {
   const fileRef = useRef<HTMLInputElement>(null)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const { avatarDataUrl, setAvatar } = useNotesStore()
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const url = URL.createObjectURL(file)
-    setAvatarUrl(url)
+    const reader = new FileReader()
+    reader.onload = (ev) => setAvatar(ev.target?.result as string)
+    reader.readAsDataURL(file)
   }
 
   return (
     <div className="relative w-12 h-12">
-      {avatarUrl ? (
+      {avatarDataUrl ? (
         <img
-          src={avatarUrl}
+          src={avatarDataUrl}
           alt="avatar"
           className="w-12 h-12 rounded-2xl object-cover"
         />

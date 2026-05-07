@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { signInWithPopup, GoogleAuthProvider, signInAnonymously } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { useAuthStore } from '../stores/authStore'
 import { useEffect, useState, useRef, useCallback } from 'react'
@@ -189,15 +189,15 @@ function AudioCaptcha({ onSuccess }: AudioCaptchaProps) {
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { user, isGuest } = useAuthStore()
   const [captchaDone, setCaptchaDone] = useState(false)
   const [captchaKey, setCaptchaKey] = useState(0)
 
   useEffect(() => {
     if (user) {
-      navigate(user.has_profile ? '/' : '/onboarding', { replace: true })
+      navigate(isGuest || user.has_profile ? '/' : '/onboarding', { replace: true })
     }
-  }, [user, navigate])
+  }, [user, isGuest, navigate])
 
   const handleGoogleSignIn = async () => {
     if (!captchaDone) return
@@ -206,6 +206,14 @@ export default function LoginPage() {
       await signInWithPopup(auth, provider)
     } catch (err) {
       console.error('Sign-in error:', err)
+    }
+  }
+
+  const handleGuestSignIn = async () => {
+    try {
+      await signInAnonymously(auth)
+    } catch (err) {
+      console.error('Guest sign-in error:', err)
     }
   }
 
@@ -269,6 +277,18 @@ export default function LoginPage() {
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
           Войти через Google
+        </button>
+
+        {/* Guest login */}
+        <button
+          type="button"
+          onClick={handleGuestSignIn}
+          className="w-full text-center text-sm py-1 transition-colors"
+          style={{ color: '#636366', background: 'transparent', border: 'none', cursor: 'pointer' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#8E8E93')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#636366')}
+        >
+          Войти как гость
         </button>
       </div>
 

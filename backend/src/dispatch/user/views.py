@@ -59,3 +59,22 @@ def update_profile(
         user_id=current_user.id,
         profile_in=body,
     )
+
+
+@router.delete("/me", status_code=204)
+def delete_current_user(current_user: CurrentUser, db_session: SessionDep):
+    """Delete current user and all their data (used for guest account cleanup on sign-out)."""
+    from src.dispatch.chat.models import ChatConversation
+    from sqlmodel import select
+
+    conversations = db_session.exec(
+        select(ChatConversation).where(ChatConversation.user_id == current_user.id)
+    ).all()
+    for conv in conversations:
+        db_session.delete(conv)
+
+    if current_user.profile:
+        db_session.delete(current_user.profile)
+
+    db_session.delete(current_user)
+    db_session.commit()
