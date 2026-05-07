@@ -1,5 +1,7 @@
 """Music AI assistant agent."""
 
+import re
+
 from langchain_core.messages import BaseMessage
 from langchain_groq import ChatGroq
 from sqlmodel import Session
@@ -57,6 +59,15 @@ SARCASTIC_SYSTEM_PROMPT = """Ты — музыкальный помощник д
 - Если запрос неоднозначен — задай уточняющий вопрос (с лёгким вздохом)"""
 
 
+def _clean_response(text: str) -> str:
+    """Strip leaked tool-call XML artifacts that the LLM sometimes emits in response text."""
+    # Remove <function=name>{...}</function> blocks
+    text = re.sub(r'<function=[^>]+>.*?</function>', '', text, flags=re.DOTALL)
+    # Remove orphaned opening/closing function tags
+    text = re.sub(r'</?function[^>]*>', '', text)
+    return text.strip()
+
+
 def create_assistant_agent(db_session: Session, user_id: int, sarcastic_mode: bool = True):
     """Create a LangGraph music assistant agent."""
     llm = ChatGroq(
@@ -88,6 +99,8 @@ def run_assistant(
             and msg.content
             and not (hasattr(msg, "tool_calls") and msg.tool_calls)
         ):
-            return msg.content
+            cleaned = _clean_response(msg.content)
+            if cleaned:
+                return cleaned
 
     return "Извините, не удалось обработать ваш запрос. Попробуйте ещё раз."

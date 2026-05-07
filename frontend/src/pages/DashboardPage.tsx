@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search, Calendar, MessageSquare, Music } from 'lucide-react'
 import { useRecommendations } from '../hooks/useMusic'
 import { useAuthStore } from '../stores/authStore'
+import { useProfile } from '../hooks/useProfile'
 
 const ACCENT = '#A855F7'
 const ACCENT_BG = 'rgba(168,85,247,0.12)'
@@ -38,7 +39,9 @@ function QuickCard({
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
-  const { data: recommended, isLoading } = useRecommendations('', '')
+  const { data: profile } = useProfile()
+  const genre = profile?.favorite_genres?.[0] ?? ''
+  const { data: recommended, isLoading } = useRecommendations(genre, '')
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
